@@ -10,7 +10,7 @@ df = pd.read_csv("fileoutput2025.csv")
 # ========================
 # Title & Header
 # ========================
-st.title("Blueprint Personality Test")
+st.title("Personality Test")
 st.write("Isi 10 pertanyaan berikut untuk mengetahui tipe kepribadian Anda.")
 
 # ========================
@@ -183,4 +183,5 @@ if st.button("Proses Hasil"):
         df_final.to_csv(output_file, index=False, encoding="utf-8-sig")
 
     st.success("Hasil berhasil disimpan ke CSV!")
+
 
