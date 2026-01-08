@@ -11,7 +11,7 @@ df = pd.read_csv("fileoutput2025.csv")
 # Title & Header
 # ========================
 st.title("SiPreMarry.id Test")
-st.write("Isi 10 pertanyaan berikut untuk mengetahui tipe kepribadian Anda.")
+st.write("Pengenalan diri adalah langkah awal membangun pernikahan yang sehat. Jawab pertanyaan berikut untuk memahami kepribadian Anda.")
 
 # ========================
 # Form Input Identitas
@@ -183,6 +183,7 @@ if st.button("Lihat Hasil"):
         df_final.to_csv(output_file, index=False, encoding="utf-8-sig")
 
     st.success("Hasil berhasil disimpan ke CSV!")
+
 
 
 
