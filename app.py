@@ -10,7 +10,7 @@ df = pd.read_csv("fileoutput2025.csv")
 # ========================
 # Title & Header
 # ========================
-st.title("Personality Test")
+st.title("SiPreMarry.id Test")
 st.write("Isi 10 pertanyaan berikut untuk mengetahui tipe kepribadian Anda.")
 
 # ========================
@@ -128,7 +128,7 @@ for idx, q in enumerate(pertanyaan):
 # ========================
 # Tombol PROSES
 # ========================
-if st.button("Proses Hasil"):
+if st.button("Lihat Hasil"):
 
     # Validasi
     if None in jawaban:
@@ -183,5 +183,6 @@ if st.button("Proses Hasil"):
         df_final.to_csv(output_file, index=False, encoding="utf-8-sig")
 
     st.success("Hasil berhasil disimpan ke CSV!")
+
 
 
