@@ -532,7 +532,6 @@ for idx, q in enumerate(pertanyaan):
     st.write("")
 
 st.write("---")
-
 # ========================
 # TOMBOL PROSES
 # ========================
@@ -581,9 +580,12 @@ Berdasarkan pilihan Anda, kecenderungan kepribadian Anda adalah **{n['nama']}**.
 Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan bukan diagnosis klinis.
 """.strip()
 
-      st.success("✅ Hasil berhasil dibuat!")
+    st.success("✅ Hasil berhasil dibuat!")
     st.markdown(narasi)
 
+    # ========================
+    # SIMPAN KE GOOGLE SHEETS
+    # ========================
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
