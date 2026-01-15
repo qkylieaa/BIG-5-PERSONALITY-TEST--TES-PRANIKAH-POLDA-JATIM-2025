@@ -581,28 +581,27 @@ Berdasarkan pilihan Anda, kecenderungan kepribadian Anda adalah **{n['nama']}**.
 Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan bukan diagnosis klinis.
 """.strip()
 
-    st.success("✅ Hasil berhasil dibuat!")
+      st.success("✅ Hasil berhasil dibuat!")
     st.markdown(narasi)
 
- from datetime import datetime
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    row = [
+        timestamp,
+        nama,
+        umur,
+        top1,
+        counts["O"],
+        counts["C"],
+        counts["E"],
+        counts["A"],
+        counts["N"],
+        narasi
+    ]
 
-row = [
-    timestamp,
-    nama,
-    umur,
-    top1,
-    counts["O"],
-    counts["C"],
-    counts["E"],
-    counts["A"],
-    counts["N"],
-    narasi
-]
+    ensure_header()
+    append_row_to_sheet(row)
 
-ensure_header()
-append_row_to_sheet(row)
+    st.info("📊 Jawaban & hasil berhasil disimpan ke Google Sheets")
 
-st.info("📊 Jawaban & hasil berhasil disimpan ke Google Sheets")
 
