@@ -1,13 +1,7 @@
 import streamlit as st
-import pandas as pd
 import json
 import gspread
 from google.oauth2.service_account import Credentials
-from datetime import datetime
-
-# ========================
-# GOOGLE SHEETS SETUP
-# ========================
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -16,11 +10,8 @@ SCOPES = [
 
 @st.cache_resource
 def get_gsheet():
-    service_account_info = json.loads(st.secrets["GCP_SERVICE_ACCOUNT"])
-    creds = Credentials.from_service_account_info(
-        service_account_info,
-        scopes=SCOPES
-    )
+    service_account_info = dict(st.secrets["gcp_service_account"])  # <-- ambil table TOML
+    creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
     gc = gspread.authorize(creds)
     sh = gc.open_by_key(st.secrets["SHEET_ID"])
     ws = sh.worksheet(st.secrets["SHEET_TAB"])
@@ -29,11 +20,7 @@ def get_gsheet():
 def ensure_header():
     ws = get_gsheet()
     if ws.row_values(1) == []:
-        header = [
-            "Timestamp","Nama","Umur","Top1",
-            "O_count","C_count","E_count","A_count","N_count",
-            "Narasi"
-        ]
+        header = ["Timestamp","Nama","Umur","Top1","O_count","C_count","E_count","A_count","N_count","Narasi"]
         header += [f"Q{i}" for i in range(1, 21)]
         ws.append_row(header, value_input_option="USER_ENTERED")
 
