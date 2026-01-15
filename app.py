@@ -1,3 +1,30 @@
+import json
+import gspread
+from google.oauth2.service_account import Credentials
+def get_gsheet_client():
+    service_account_info = json.loads(st.secrets["GCP_SERVICE_ACCOUNT"])
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    creds = Credentials.from_service_account_info(service_account_info, scopes=scopes)
+    return gspread.authorize(creds)
+
+def ensure_header():
+    gc = get_gsheet_client()
+    sh = gc.open_by_key(st.secrets["SHEET_ID"])
+    ws = sh.worksheet(st.secrets["SHEET_TAB"])
+    if ws.row_values(1) == []:
+        header = ["Timestamp","Nama","Umur","Top1","O_count","C_count","E_count","A_count","N_count"]
+        header += [f"Q{i}" for i in range(1, 21)]
+        ws.append_row(header, value_input_option="USER_ENTERED")
+
+def append_row_to_sheet(row):
+    gc = get_gsheet_client()
+    sh = gc.open_by_key(st.secrets["SHEET_ID"])
+    ws = sh.worksheet(st.secrets["SHEET_TAB"])
+    ws.append_row(row, value_input_option="USER_ENTERED")
+
 import streamlit as st
 import pandas as pd
 import os
