@@ -1,14 +1,62 @@
+import streamlit as st
+import pandas as pd
 import json
 import gspread
 from google.oauth2.service_account import Credentials
-def get_gsheet_client():
-    service_account_info = json.loads(st.secrets["GCP_SERVICE_ACCOUNT"])
-    scopes = [
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive",
-    ]
-    creds = Credentials.from_service_account_info(service_account_info, scopes=scopes)
-    return gspread.authorize(creds)
+from datetime import datetime
+import os
+
+service_account_info = json.loads(st.secrets["GCP_SERVICE_ACCOUNT"])
+
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
+
+creds = Credentials.from_service_account_info(
+    service_account_info,
+    scopes=SCOPES
+)
+
+gc = gspread.authorize(creds)
+def ensure_header():
+    sh = gc.open_by_key(st.secrets["SHEET_ID"])
+    ws = sh.worksheet(st.secrets["SHEET_TAB"])
+
+    if ws.row_values(1) == []:
+        header = [
+            "Timestamp","Nama","Umur","Top1",
+            "O_count","C_count","E_count","A_count","N_count"
+        ]
+        header += [f"Q{i}" for i in range(1, 21)]
+        ws.append_row(header, value_input_option="USER_ENTERED")
+
+
+def append_row_to_sheet(row):
+    sh = gc.open_by_key(st.secrets["SHEET_ID"])
+    ws = sh.worksheet(st.secrets["SHEET_TAB"])
+    ws.append_row(row, value_input_option="USER_ENTERED")
+
+st.set_page_config(page_title="SiPreMarry.id", layout="centered")
+
+# ========================
+# GOOGLE SHEETS SETUP
+# ========================
+
+service_account_info = json.loads(st.secrets["GCP_SERVICE_ACCOUNT"])
+
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
+
+creds = Credentials.from_service_account_info(
+    service_account_info,
+    scopes=SCOPES
+)
+
+gc = gspread.authorize(creds)
+
 
 def ensure_header():
     gc = get_gsheet_client()
@@ -24,11 +72,6 @@ def append_row_to_sheet(row):
     sh = gc.open_by_key(st.secrets["SHEET_ID"])
     ws = sh.worksheet(st.secrets["SHEET_TAB"])
     ws.append_row(row, value_input_option="USER_ENTERED")
-
-import streamlit as st
-import pandas as pd
-import os
-from datetime import datetime
 
 st.set_page_config(page_title="SiPreMarry.id", layout="centered")
 
@@ -589,17 +632,17 @@ Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
-        timestamp,
-        nama,
-        umur,
-        top1,
-        counts["O"],
-        counts["C"],
-        counts["E"],
-        counts["A"],
-        counts["N"],
-        narasi
-    ]
+    timestamp,
+    nama,
+    umur,
+    top1,
+    counts["O"],
+    counts["C"],
+    counts["E"],
+    counts["A"],
+    counts["N"],
+    narasi
+] + jawaban
 
     ensure_header()
     append_row_to_sheet(row)
