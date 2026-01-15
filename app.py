@@ -4,73 +4,41 @@ import json
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
-import os
-
-service_account_info = dict(st.secrets["gcp_service_account"])
-
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive",
-]
-
-creds = Credentials.from_service_account_info(
-    service_account_info,
-    scopes=SCOPES
-)
-
-gc = gspread.authorize(creds)
-def ensure_header():
-    sh = gc.open_by_key(st.secrets["SHEET_ID"])
-    ws = sh.worksheet(st.secrets["SHEET_TAB"])
-
-    if ws.row_values(1) == []:
-        header = [
-            "Timestamp","Nama","Umur","Top1",
-            "O_count","C_count","E_count","A_count","N_count"
-        ]
-        header += [f"Q{i}" for i in range(1, 21)]
-        ws.append_row(header, value_input_option="USER_ENTERED")
-
-
-def append_row_to_sheet(row):
-    sh = gc.open_by_key(st.secrets["SHEET_ID"])
-    ws = sh.worksheet(st.secrets["SHEET_TAB"])
-    ws.append_row(row, value_input_option="USER_ENTERED")
-
-st.set_page_config(page_title="SiPreMarry.id", layout="centered")
 
 # ========================
 # GOOGLE SHEETS SETUP
 # ========================
 
-service_account_info = json.loads(st.secrets["GCP_SERVICE_ACCOUNT"])
-
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
 ]
 
-creds = Credentials.from_service_account_info(
-    service_account_info,
-    scopes=SCOPES
-)
-
-gc = gspread.authorize(creds)
-
-
-def ensure_header():
-    gc = get_gsheet_client()
+@st.cache_resource
+def get_gsheet():
+    service_account_info = json.loads(st.secrets["GCP_SERVICE_ACCOUNT"])
+    creds = Credentials.from_service_account_info(
+        service_account_info,
+        scopes=SCOPES
+    )
+    gc = gspread.authorize(creds)
     sh = gc.open_by_key(st.secrets["SHEET_ID"])
     ws = sh.worksheet(st.secrets["SHEET_TAB"])
+    return ws
+
+def ensure_header():
+    ws = get_gsheet()
     if ws.row_values(1) == []:
-        header = ["Timestamp","Nama","Umur","Top1","O_count","C_count","E_count","A_count","N_count"]
+        header = [
+            "Timestamp","Nama","Umur","Top1",
+            "O_count","C_count","E_count","A_count","N_count",
+            "Narasi"
+        ]
         header += [f"Q{i}" for i in range(1, 21)]
         ws.append_row(header, value_input_option="USER_ENTERED")
 
 def append_row_to_sheet(row):
-    gc = get_gsheet_client()
-    sh = gc.open_by_key(st.secrets["SHEET_ID"])
-    ws = sh.worksheet(st.secrets["SHEET_TAB"])
+    ws = get_gsheet()
     ws.append_row(row, value_input_option="USER_ENTERED")
 
 st.set_page_config(page_title="SiPreMarry.id", layout="centered")
