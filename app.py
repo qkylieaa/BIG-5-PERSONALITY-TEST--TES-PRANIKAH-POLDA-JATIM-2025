@@ -586,22 +586,14 @@ Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan
     # ========================
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    row = [
-    timestamp,
-    nama,
-    umur,
-    top1,
-    counts["O"],
-    counts["C"],
-    counts["E"],
-    counts["A"],
-    counts["N"],
+  row = [
+    timestamp, nama, umur, top1,
+    counts["O"], counts["C"], counts["E"], counts["A"], counts["N"],
     narasi
 ] + jawaban
 
-    ensure_header()
-    append_row_to_sheet(row)
-
-    st.info("📊 Jawaban & hasil berhasil disimpan ke Google Sheets")
+ensure_header()
+append_row_to_sheet(row)
+st.info("📊 Jawaban & hasil berhasil disimpan ke Google Sheets")
 
 
