@@ -9,23 +9,30 @@ SCOPES = [
 ]
 
 @st.cache_resource
-def get_gsheet():
-    service_account_info = dict(st.secrets["gcp_service_account"])  # <-- ambil table TOML
+def get_ws():
+    # ambil JSON string dari secrets lalu parse
+    service_account_info = json.loads(st.secrets["GCP_SERVICE_ACCOUNT"])
+
     creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
     gc = gspread.authorize(creds)
+
     sh = gc.open_by_key(st.secrets["SHEET_ID"])
     ws = sh.worksheet(st.secrets["SHEET_TAB"])
     return ws
 
 def ensure_header():
-    ws = get_gsheet()
+    ws = get_ws()
     if ws.row_values(1) == []:
-        header = ["Timestamp","Nama","Umur","Top1","O_count","C_count","E_count","A_count","N_count","Narasi"]
+        header = [
+            "Timestamp","Nama","Umur","Top1",
+            "O_count","C_count","E_count","A_count","N_count",
+            "Narasi"
+        ]
         header += [f"Q{i}" for i in range(1, 21)]
         ws.append_row(header, value_input_option="USER_ENTERED")
 
 def append_row_to_sheet(row):
-    ws = get_gsheet()
+    ws = get_ws()
     ws.append_row(row, value_input_option="USER_ENTERED")
 
 st.set_page_config(page_title="SiPreMarry.id", layout="centered")
@@ -581,19 +588,25 @@ Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan
     st.success("✅ Hasil berhasil dibuat!")
     st.markdown(narasi)
 
-    # ========================
-    # SIMPAN KE GOOGLE SHEETS
-    # ========================
+    # SIMPAN KE GOOGLE SHEETS (DI DALAM TOMBOL)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-  row = [
-    timestamp, nama, umur, top1,
-    counts["O"], counts["C"], counts["E"], counts["A"], counts["N"],
-    narasi
-] + jawaban
+    row = [
+        timestamp,
+        nama,
+        umur,
+        top1,
+        counts["O"],
+        counts["C"],
+        counts["E"],
+        counts["A"],
+        counts["N"],
+        narasi,
+    ] + jawaban  # jawaban = list 20 pilihan
 
-ensure_header()
-append_row_to_sheet(row)
-st.info("📊 Jawaban & hasil berhasil disimpan ke Google Sheets")
+    ensure_header()
+    append_row_to_sheet(row)
+
+    st.info("📊 Jawaban & hasil berhasil disimpan ke Google Sheets")
 
 
