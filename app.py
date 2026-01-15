@@ -6,7 +6,7 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 import os
 
-service_account_info = json.loads(st.secrets["GCP_SERVICE_ACCOUNT"])
+service_account_info = dict(st.secrets["gcp_service_account"])
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
