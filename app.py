@@ -584,31 +584,25 @@ Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan
     st.success("✅ Hasil berhasil dibuat!")
     st.markdown(narasi)
 
-    # ========================
-    # SIMPAN CSV
-    # ========================
-    output_file = "hasil_sipremarry_respon.csv"
+ from datetime import datetime
 
-    data_baru = {
-        "Timestamp": [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
-        "Nama": [nama],
-        "Umur": [umur],
-        "Top1": [top1],
-        "O_count": [counts["O"]],
-        "C_count": [counts["C"]],
-        "E_count": [counts["E"]],
-        "A_count": [counts["A"]],
-        "N_count": [counts["N"]],
-        "Narasi_Final": [narasi],
-    }
+timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    df_baru = pd.DataFrame(data_baru)
+row = [
+    timestamp,
+    nama,
+    umur,
+    top1,
+    counts["O"],
+    counts["C"],
+    counts["E"],
+    counts["A"],
+    counts["N"],
+    narasi
+]
 
-    if not os.path.exists(output_file):
-        df_baru.to_csv(output_file, index=False, encoding="utf-8-sig")
-    else:
-        df_lama = pd.read_csv(output_file)
-        df_final = pd.concat([df_lama, df_baru], ignore_index=True)
-        df_final.to_csv(output_file, index=False, encoding="utf-8-sig")
+ensure_header()
+append_row_to_sheet(row)
 
-    st.info(f"📁 Jawaban & hasil tersimpan di: {output_file}")
+st.info("📊 Jawaban & hasil berhasil disimpan ke Google Sheets")
+
