@@ -6,21 +6,22 @@ import datetime as dt
 st.set_page_config(page_title="SiPreMarry.id", layout="centered")
 
 # ========================
-# PATH FILE EXCEL (TETAP, AUTO UPDATE TERUS)
+# PATH FILE EXCEL (ADMIN) - 1 FILE TERUS UPDATE
 # ========================
 EXCEL_FILENAME = r"C:\Users\APRILIA R.P\Downloads\Draft Sipremarry\data user SiPreMarry.xlsx"
 
 COLUMNS = [
-    "Timestamp","Nama","Umur","Top1",
-    "O_count","C_count","E_count","A_count","N_count",
-    "Narasi"
+    "Timestamp", "Nama", "Umur",
+    "Top1", "Hasil_Prediksi",
+    "O_count", "C_count", "E_count", "A_count", "N_count",
+    "Narasi",
 ] + [f"Q{i}" for i in range(1, 21)]
 
 def bullet(lines):
     return "\n".join([f"- {x}" for x in lines])
 
 def save_to_excel_append(row, filename=EXCEL_FILENAME):
-    """Append 1 row ke 1 file Excel yang sama. Jika file belum ada, buat + header."""
+    """Append 1 row ke 1 file Excel yang sama. Jika belum ada, buat baru + header."""
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     df_new = pd.DataFrame([row], columns=COLUMNS)
 
@@ -28,20 +29,16 @@ def save_to_excel_append(row, filename=EXCEL_FILENAME):
         df_new.to_excel(filename, index=False)
         return
 
-    # Append ke sheet pertama yang ada
     with pd.ExcelWriter(filename, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
-        first_sheet = list(writer.sheets.keys())[0]  # biasanya "Sheet1"
-        startrow = writer.sheets[first_sheet].max_row
-        df_new.to_excel(writer, sheet_name=first_sheet, index=False, header=False, startrow=startrow)
+        sheet = list(writer.sheets.keys())[0]  # sheet pertama
+        startrow = writer.sheets[sheet].max_row
+        df_new.to_excel(writer, sheet_name=sheet, index=False, header=False, startrow=startrow)
 
 # ========================
 # Title & Header
 # ========================
 st.title("💍 SiPreMarry.id Test")
-st.write(
-    "Pengenalan diri adalah langkah awal membangun pernikahan yang sehat. "
-    "Jawab pertanyaan berikut untuk memahami kecenderungan kepribadian Anda."
-)
+st.write("Pengenalan diri adalah langkah awal membangun pernikahan yang sehat. Jawab pertanyaan berikut untuk memahami kecenderungan kepribadian Anda.")
 st.write("---")
 
 # ========================
@@ -79,7 +76,7 @@ pertanyaan = [
 ]
 
 # ========================
-# Opsi (Q1–Q20)
+# Opsi (Q1–Q20) - TEKS LENGKAP
 # ========================
 opsi = [
     # Q1
@@ -248,30 +245,30 @@ opsi = [
 # KEYS (opsi -> trait O/C/E/A/N)
 # ========================
 KEYS = [
-    {opsi[0][0]:"A", opsi[0][1]:"O", opsi[0][2]:"N", opsi[0][3]:"C", opsi[0][4]:"O"},
-    {opsi[1][0]:"N", opsi[1][1]:"C", opsi[1][2]:"O", opsi[1][3]:"A", opsi[1][4]:"N"},
-    {opsi[2][0]:"C", opsi[2][1]:"O", opsi[2][2]:"N", opsi[2][3]:"E", opsi[2][4]:"C"},
-    {opsi[3][0]:"N", opsi[3][1]:"A", opsi[3][2]:"E", opsi[3][3]:"N", opsi[3][4]:"C"},
-    {opsi[4][0]:"N", opsi[4][1]:"N", opsi[4][2]:"C", opsi[4][3]:"O", opsi[4][4]:"C"},
-    {opsi[5][0]:"C", opsi[5][1]:"A", opsi[5][2]:"N", opsi[5][3]:"E", opsi[5][4]:"O"},
-    {opsi[6][0]:"N", opsi[6][1]:"E", opsi[6][2]:"E", opsi[6][3]:"C", opsi[6][4]:"O"},
-    {opsi[7][0]:"N", opsi[7][1]:"A", opsi[7][2]:"O", opsi[7][3]:"E", opsi[7][4]:"C"},
-    {opsi[8][0]:"C", opsi[8][1]:"O", opsi[8][2]:"A", opsi[8][3]:"E", opsi[8][4]:"N"},
-    {opsi[9][0]:"E", opsi[9][1]:"C", opsi[9][2]:"N", opsi[9][3]:"A", opsi[9][4]:"O"},
-    {opsi[10][0]:"N", opsi[10][1]:"A", opsi[10][2]:"O", opsi[10][3]:"C", opsi[10][4]:"O"},
-    {opsi[11][0]:"C", opsi[11][1]:"O", opsi[11][2]:"E", opsi[11][3]:"A", opsi[11][4]:"N"},
-    {opsi[12][0]:"N", opsi[12][1]:"O", opsi[12][2]:"O", opsi[12][3]:"C", opsi[12][4]:"E"},
-    {opsi[13][0]:"N", opsi[13][1]:"A", opsi[13][2]:"E", opsi[13][3]:"O", opsi[13][4]:"C"},
-    {opsi[14][0]:"N", opsi[14][1]:"O", opsi[14][2]:"C", opsi[14][3]:"E", opsi[14][4]:"A"},
-    {opsi[15][0]:"O", opsi[15][1]:"O", opsi[15][2]:"C", opsi[15][3]:"A", opsi[15][4]:"N"},
-    {opsi[16][0]:"O", opsi[16][1]:"C", opsi[16][2]:"E", opsi[16][3]:"A", opsi[16][4]:"N"},
-    {opsi[17][0]:"N", opsi[17][1]:"E", opsi[17][2]:"O", opsi[17][3]:"C", opsi[17][4]:"A"},
-    {opsi[18][0]:"O", opsi[18][1]:"E", opsi[18][2]:"N", opsi[18][3]:"C", opsi[18][4]:"A"},
-    {opsi[19][0]:"C", opsi[19][1]:"C", opsi[19][2]:"N", opsi[19][3]:"O", opsi[19][4]:"E"},
+    {opsi[0][0]: "A", opsi[0][1]: "O", opsi[0][2]: "N", opsi[0][3]: "C", opsi[0][4]: "O"},
+    {opsi[1][0]: "N", opsi[1][1]: "C", opsi[1][2]: "O", opsi[1][3]: "A", opsi[1][4]: "N"},
+    {opsi[2][0]: "C", opsi[2][1]: "O", opsi[2][2]: "N", opsi[2][3]: "E", opsi[2][4]: "C"},
+    {opsi[3][0]: "N", opsi[3][1]: "A", opsi[3][2]: "E", opsi[3][3]: "N", opsi[3][4]: "C"},
+    {opsi[4][0]: "N", opsi[4][1]: "N", opsi[4][2]: "C", opsi[4][3]: "O", opsi[4][4]: "C"},
+    {opsi[5][0]: "C", opsi[5][1]: "A", opsi[5][2]: "N", opsi[5][3]: "E", opsi[5][4]: "O"},
+    {opsi[6][0]: "N", opsi[6][1]: "E", opsi[6][2]: "E", opsi[6][3]: "C", opsi[6][4]: "O"},
+    {opsi[7][0]: "N", opsi[7][1]: "A", opsi[7][2]: "O", opsi[7][3]: "E", opsi[7][4]: "C"},
+    {opsi[8][0]: "C", opsi[8][1]: "O", opsi[8][2]: "A", opsi[8][3]: "E", opsi[8][4]: "N"},
+    {opsi[9][0]: "E", opsi[9][1]: "C", opsi[9][2]: "N", opsi[9][3]: "A", opsi[9][4]: "O"},
+    {opsi[10][0]: "N", opsi[10][1]: "A", opsi[10][2]: "O", opsi[10][3]: "C", opsi[10][4]: "O"},
+    {opsi[11][0]: "C", opsi[11][1]: "O", opsi[11][2]: "E", opsi[11][3]: "A", opsi[11][4]: "N"},
+    {opsi[12][0]: "N", opsi[12][1]: "O", opsi[12][2]: "O", opsi[12][3]: "C", opsi[12][4]: "E"},
+    {opsi[13][0]: "N", opsi[13][1]: "A", opsi[13][2]: "E", opsi[13][3]: "O", opsi[13][4]: "C"},
+    {opsi[14][0]: "N", opsi[14][1]: "O", opsi[14][2]: "C", opsi[14][3]: "E", opsi[14][4]: "A"},
+    {opsi[15][0]: "O", opsi[15][1]: "O", opsi[15][2]: "C", opsi[15][3]: "A", opsi[15][4]: "N"},
+    {opsi[16][0]: "O", opsi[16][1]: "C", opsi[16][2]: "E", opsi[16][3]: "A", opsi[16][4]: "N"},
+    {opsi[17][0]: "N", opsi[17][1]: "E", opsi[17][2]: "O", opsi[17][3]: "C", opsi[17][4]: "A"},
+    {opsi[18][0]: "O", opsi[18][1]: "E", opsi[18][2]: "N", opsi[18][3]: "C", opsi[18][4]: "A"},
+    {opsi[19][0]: "C", opsi[19][1]: "C", opsi[19][2]: "N", opsi[19][3]: "O", opsi[19][4]: "E"},
 ]
 
 # ========================
-# NARASI (FULL)
+# NARASI (Top1 saja) - FULL
 # ========================
 NARASI = {
     "O": {
@@ -415,6 +412,9 @@ if st.button("🔍 Lihat Hasil"):
     # Top1 saja
     top1 = max(counts, key=counts.get)
 
+    # hasil prediksi disimpan juga
+    hasil_prediksi = NARASI[top1]["nama"]
+
     # buat narasi
     n = NARASI[top1]
     narasi = f"""
@@ -442,7 +442,7 @@ Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan
     st.success("✅ Hasil berhasil dibuat!")
     st.markdown(narasi)
 
-    # ===== AUTO SAVE KE EXCEL (1 FILE YANG SAMA, TERUS UPDATE) =====
+    # ===== AUTO SAVE KE EXCEL (APPEND) =====
     timestamp = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
@@ -450,6 +450,7 @@ Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan
         nama,
         int(umur),
         top1,
+        hasil_prediksi,
         counts["O"],
         counts["C"],
         counts["E"],
@@ -458,9 +459,13 @@ Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan
         narasi,
     ] + jawaban
 
-    try:
-        save_to_excel_append(row)
-        st.info("📊 Jawaban kamu sudah tersimpan.")
-    except Exception as e:
-        st.error("❌ Gagal menyimpan jawaban.")
-        st.exception(e)
+    # anti double-save karena rerun
+    payload = (timestamp, nama, int(umur), top1, tuple(jawaban))
+    if st.session_state.get("last_saved") != payload:
+        try:
+            save_to_excel_append(row)
+            st.session_state["last_saved"] = payload
+            st.info("📊 Jawaban kamu tersimpan otomatis.")
+        except Exception as e:
+            st.error("❌ Gagal menyimpan jawaban.")
+            st.exception(e)
