@@ -19,7 +19,7 @@ EXCEL_FILENAME = os.path.join(BASE_DIR, "data user SiPreMarry.xlsx")
 
 COLUMNS = [
     "Timestamp", "Nama", "Umur",
-    "Top1", "Hasil_Prediksi",
+    "Top1", "Hasil Prediksi",   # <-- PAKAI SPASI
     "O_count", "C_count", "E_count", "A_count", "N_count",
     "Narasi",
 ] + [f"Q{i}" for i in range(1, 21)]
