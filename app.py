@@ -6,9 +6,14 @@ import datetime as dt
 st.set_page_config(page_title="SiPreMarry.id", layout="centered")
 
 # ========================
-# PATH FILE EXCEL (ADMIN) - 1 FILE TERUS UPDATE
+# PATH FILE EXCEL (AUTO SESUAI OS)
+# - Windows (run di laptop): simpan ke path kamu
+# - Linux/Cloud: simpan di folder project biar tidak error
 # ========================
-EXCEL_FILENAME = r"C:\Users\APRILIA R.P\Downloads\Draft Sipremarry\data user SiPreMarry.xlsx"
+if os.name == "nt":
+    EXCEL_FILENAME = r"C:\Users\APRILIA R.P\Downloads\Draft Sipremarry\data user SiPreMarry.xlsx"
+else:
+    EXCEL_FILENAME = os.path.join(os.getcwd(), "data user SiPreMarry.xlsx")
 
 COLUMNS = [
     "Timestamp", "Nama", "Umur",
@@ -22,13 +27,17 @@ def bullet(lines):
 
 def save_to_excel_append(row, filename=EXCEL_FILENAME):
     """Append 1 row ke 1 file Excel yang sama. Jika belum ada, buat baru + header."""
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    # FIX utama: kalau dirname kosong -> pakai "."
+    os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
+
     df_new = pd.DataFrame([row], columns=COLUMNS)
 
+    # jika file belum ada: buat baru (header otomatis)
     if not os.path.exists(filename):
         df_new.to_excel(filename, index=False)
         return
 
+    # jika file sudah ada: append baris (tanpa header)
     with pd.ExcelWriter(filename, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
         sheet = list(writer.sheets.keys())[0]  # sheet pertama
         startrow = writer.sheets[sheet].max_row
@@ -79,7 +88,6 @@ pertanyaan = [
 # Opsi (Q1–Q20) - TEKS LENGKAP
 # ========================
 opsi = [
-    # Q1
     [
         "Merasa hidup saya baik-baik saja tanpa perlu membandingkan diri",
         "Penasaran bagaimana jalan hidup mereka bisa berbeda dari saya",
@@ -87,7 +95,6 @@ opsi = [
         "Termotivasi untuk memperbaiki cara saya bekerja",
         "Tidak terlalu tertarik memikirkan perjalanan hidup orang lain",
     ],
-    # Q2
     [
         "Menarik diri karena emosi saya mudah naik turun",
         "Mencoba kembali ke rutinitas agar pikiran lebih stabil",
@@ -95,7 +102,6 @@ opsi = [
         "Berusaha tetap tenang agar tidak mempengaruhi orang lain",
         "Mengabaikan perasaan itu dan berharap cepat berlalu",
     ],
-    # Q3
     [
         "Tenang karena percaya semuanya akan berjalan dengan sendirinya",
         "Antusias membayangkan banyak kemungkinan yang bisa terjadi",
@@ -103,7 +109,6 @@ opsi = [
         "Bersemangat menjalaninya bersama orang-orang terdekat",
         "Perlu rencana jelas agar hidup terasa aman",
     ],
-    # Q4
     [
         "Langsung merasa ada yang salah dengan hubungan kami",
         "Menganggap setiap orang punya kesibukan masing-masing",
@@ -111,7 +116,6 @@ opsi = [
         "Tidak terlalu memikirkannya dan fokus ke hal lain",
         "Mencatatnya sebagai hal yang perlu diperhatikan ke depan",
     ],
-    # Q5
     [
         "Sulit berhenti memikirkan kesalahan yang terjadi",
         "Menganggap kegagalan sebagai pengalaman biasa dalam hidup",
@@ -119,7 +123,6 @@ opsi = [
         "Mencari kemungkinan arah baru yang belum terpikirkan",
         "Lebih memilih menerima keadaan tanpa banyak menganalisis",
     ],
-    # Q6
     [
         "Mengikuti perasaan saya saat itu tanpa banyak pertimbangan",
         "Mempertimbangkan dampaknya terhadap orang-orang terdekat",
@@ -127,7 +130,6 @@ opsi = [
         "Berdiskusi agar mendapatkan banyak sudut pandang",
         "Menggunakan nilai dan prinsip pribadi sebagai acuan",
     ],
-    # Q7
     [
         "Merasa tidak nyaman dan butuh waktu lama untuk menyesuaikan diri",
         "Mudah memulai percakapan dengan orang baru",
@@ -135,7 +137,6 @@ opsi = [
         "Berusaha mengikuti aturan agar tidak membuat kesalahan",
         "Tertarik mencoba hal-hal yang belum pernah saya alami",
     ],
-    # Q8
     [
         "Menghindari pembicaraan karena takut suasana memburuk",
         "Mengalah meski sebenarnya tidak sepenuhnya setuju",
@@ -143,7 +144,6 @@ opsi = [
         "Menjaga agar komunikasi tetap terbuka",
         "Mencari solusi yang paling masuk akal bagi kedua pihak",
     ],
-    # Q9
     [
         "Tempat yang stabil dengan aturan yang jelas",
         "Ruang yang terus berkembang dan terbuka terhadap perubahan",
@@ -151,7 +151,6 @@ opsi = [
         "Tempat yang hangat dan penuh interaksi",
         "Rumah yang tenang agar emosi tetap terkendali",
     ],
-    # Q10
     [
         "Menyampaikan perasaan secara spontan",
         "Memikirkan kata-kata dengan hati-hati sebelum berbicara",
@@ -159,7 +158,6 @@ opsi = [
         "Mendengarkan terlebih dahulu sebelum menanggapi",
         "Tidak terlalu tertarik membahas topik yang mendalam",
     ],
-    # Q11
     [
         "Merasa panik dan sulit menenangkan diri",
         "Mencoba menyesuaikan diri tanpa banyak mengeluh",
@@ -167,7 +165,6 @@ opsi = [
         "Menyusun ulang rencana agar tetap terkendali",
         "Melihatnya sebagai kesempatan mencoba hal baru",
     ],
-    # Q12
     [
         "Hubungan berjalan apa adanya tanpa banyak aturan",
         "Ada keterbukaan untuk tumbuh bersama",
@@ -175,7 +172,6 @@ opsi = [
         "Konflik bisa dihindari sebisa mungkin",
         "Emosi saya jarang terganggu oleh hal kecil",
     ],
-    # Q13
     [
         "Merasa lelah secara emosional",
         "Mencari cara baru yang belum pernah dicoba",
@@ -183,7 +179,6 @@ opsi = [
         "Mengevaluasi pola kesalahan secara sistematis",
         "Membicarakannya agar tidak menumpuk",
     ],
-    # Q14
     [
         "Langsung merasa tersinggung",
         "Mendengarkan dengan tenang walau tidak langsung setuju",
@@ -191,7 +186,6 @@ opsi = [
         "Mencoba memahami maksud di balik kritik tersebut",
         "Menjadikannya bahan evaluasi diri",
     ],
-    # Q15
     [
         "Mudah khawatir terhadap hal yang belum terjadi",
         "Cukup fleksibel menghadapi perubahan",
@@ -199,7 +193,6 @@ opsi = [
         "Mudah berinteraksi dengan berbagai tipe orang",
         "Berusaha menjaga perasaan orang lain",
     ],
-    # Q16
     [
         "Memilih yang sudah pasti dan aman",
         "Tertarik mencoba hal baru meski berisiko",
@@ -207,7 +200,6 @@ opsi = [
         "Mengikuti pilihan yang disukai orang sekitar",
         "Merasa cemas dengan pilihan apapun",
     ],
-    # Q17
     [
         "Stabilitas lebih penting daripada perubahan",
         "Perencanaan yang jelas membuat hubungan lebih aman",
@@ -215,7 +207,6 @@ opsi = [
         "Mengalah adalah cara terbaik menjaga keharmonisan",
         "Emosi yang naik turun adalah hal yang wajar bagi saya",
     ],
-    # Q18
     [
         "Menyalahkan diri sendiri",
         "Mengajak pasangan berbicara secara terbuka",
@@ -223,7 +214,6 @@ opsi = [
         "Menunggu keadaan membaik dengan sendirinya",
         "Menjaga sikap agar tidak memperkeruh suasana",
     ],
-    # Q19
     [
         "Harus menghadapi perubahan mendadak",
         "Hubungan terasa terlalu kaku",
@@ -231,7 +221,6 @@ opsi = [
         "Tanggung jawab tidak dijalankan dengan baik",
         "Ada konflik terbuka antar orang terdekat",
     ],
-    # Q20
     [
         "Membuat perencanaan detail",
         "Mengikuti arus dan melihat nanti",
@@ -242,33 +231,33 @@ opsi = [
 ]
 
 # ========================
-# KEYS (opsi -> trait O/C/E/A/N)
+# KEYS
 # ========================
 KEYS = [
-    {opsi[0][0]: "A", opsi[0][1]: "O", opsi[0][2]: "N", opsi[0][3]: "C", opsi[0][4]: "O"},
-    {opsi[1][0]: "N", opsi[1][1]: "C", opsi[1][2]: "O", opsi[1][3]: "A", opsi[1][4]: "N"},
-    {opsi[2][0]: "C", opsi[2][1]: "O", opsi[2][2]: "N", opsi[2][3]: "E", opsi[2][4]: "C"},
-    {opsi[3][0]: "N", opsi[3][1]: "A", opsi[3][2]: "E", opsi[3][3]: "N", opsi[3][4]: "C"},
-    {opsi[4][0]: "N", opsi[4][1]: "N", opsi[4][2]: "C", opsi[4][3]: "O", opsi[4][4]: "C"},
-    {opsi[5][0]: "C", opsi[5][1]: "A", opsi[5][2]: "N", opsi[5][3]: "E", opsi[5][4]: "O"},
-    {opsi[6][0]: "N", opsi[6][1]: "E", opsi[6][2]: "E", opsi[6][3]: "C", opsi[6][4]: "O"},
-    {opsi[7][0]: "N", opsi[7][1]: "A", opsi[7][2]: "O", opsi[7][3]: "E", opsi[7][4]: "C"},
-    {opsi[8][0]: "C", opsi[8][1]: "O", opsi[8][2]: "A", opsi[8][3]: "E", opsi[8][4]: "N"},
-    {opsi[9][0]: "E", opsi[9][1]: "C", opsi[9][2]: "N", opsi[9][3]: "A", opsi[9][4]: "O"},
-    {opsi[10][0]: "N", opsi[10][1]: "A", opsi[10][2]: "O", opsi[10][3]: "C", opsi[10][4]: "O"},
-    {opsi[11][0]: "C", opsi[11][1]: "O", opsi[11][2]: "E", opsi[11][3]: "A", opsi[11][4]: "N"},
-    {opsi[12][0]: "N", opsi[12][1]: "O", opsi[12][2]: "O", opsi[12][3]: "C", opsi[12][4]: "E"},
-    {opsi[13][0]: "N", opsi[13][1]: "A", opsi[13][2]: "E", opsi[13][3]: "O", opsi[13][4]: "C"},
-    {opsi[14][0]: "N", opsi[14][1]: "O", opsi[14][2]: "C", opsi[14][3]: "E", opsi[14][4]: "A"},
-    {opsi[15][0]: "O", opsi[15][1]: "O", opsi[15][2]: "C", opsi[15][3]: "A", opsi[15][4]: "N"},
-    {opsi[16][0]: "O", opsi[16][1]: "C", opsi[16][2]: "E", opsi[16][3]: "A", opsi[16][4]: "N"},
-    {opsi[17][0]: "N", opsi[17][1]: "E", opsi[17][2]: "O", opsi[17][3]: "C", opsi[17][4]: "A"},
-    {opsi[18][0]: "O", opsi[18][1]: "E", opsi[18][2]: "N", opsi[18][3]: "C", opsi[18][4]: "A"},
-    {opsi[19][0]: "C", opsi[19][1]: "C", opsi[19][2]: "N", opsi[19][3]: "O", opsi[19][4]: "E"},
+    {opsi[0][0]:"A", opsi[0][1]:"O", opsi[0][2]:"N", opsi[0][3]:"C", opsi[0][4]:"O"},
+    {opsi[1][0]:"N", opsi[1][1]:"C", opsi[1][2]:"O", opsi[1][3]:"A", opsi[1][4]:"N"},
+    {opsi[2][0]:"C", opsi[2][1]:"O", opsi[2][2]:"N", opsi[2][3]:"E", opsi[2][4]:"C"},
+    {opsi[3][0]:"N", opsi[3][1]:"A", opsi[3][2]:"E", opsi[3][3]:"N", opsi[3][4]:"C"},
+    {opsi[4][0]:"N", opsi[4][1]:"N", opsi[4][2]:"C", opsi[4][3]:"O", opsi[4][4]:"C"},
+    {opsi[5][0]:"C", opsi[5][1]:"A", opsi[5][2]:"N", opsi[5][3]:"E", opsi[5][4]:"O"},
+    {opsi[6][0]:"N", opsi[6][1]:"E", opsi[6][2]:"E", opsi[6][3]:"C", opsi[6][4]:"O"},
+    {opsi[7][0]:"N", opsi[7][1]:"A", opsi[7][2]:"O", opsi[7][3]:"E", opsi[7][4]:"C"},
+    {opsi[8][0]:"C", opsi[8][1]:"O", opsi[8][2]:"A", opsi[8][3]:"E", opsi[8][4]:"N"},
+    {opsi[9][0]:"E", opsi[9][1]:"C", opsi[9][2]:"N", opsi[9][3]:"A", opsi[9][4]:"O"},
+    {opsi[10][0]:"N", opsi[10][1]:"A", opsi[10][2]:"O", opsi[10][3]:"C", opsi[10][4]:"O"},
+    {opsi[11][0]:"C", opsi[11][1]:"O", opsi[11][2]:"E", opsi[11][3]:"A", opsi[11][4]:"N"},
+    {opsi[12][0]:"N", opsi[12][1]:"O", opsi[12][2]:"O", opsi[12][3]:"C", opsi[12][4]:"E"},
+    {opsi[13][0]:"N", opsi[13][1]:"A", opsi[13][2]:"E", opsi[13][3]:"O", opsi[13][4]:"C"},
+    {opsi[14][0]:"N", opsi[14][1]:"O", opsi[14][2]:"C", opsi[14][3]:"E", opsi[14][4]:"A"},
+    {opsi[15][0]:"O", opsi[15][1]:"O", opsi[15][2]:"C", opsi[15][3]:"A", opsi[15][4]:"N"},
+    {opsi[16][0]:"O", opsi[16][1]:"C", opsi[16][2]:"E", opsi[16][3]:"A", opsi[16][4]:"N"},
+    {opsi[17][0]:"N", opsi[17][1]:"E", opsi[17][2]:"O", opsi[17][3]:"C", opsi[17][4]:"A"},
+    {opsi[18][0]:"O", opsi[18][1]:"E", opsi[18][2]:"N", opsi[18][3]:"C", opsi[18][4]:"A"},
+    {opsi[19][0]:"C", opsi[19][1]:"C", opsi[19][2]:"N", opsi[19][3]:"O", opsi[19][4]:"E"},
 ]
 
 # ========================
-# NARASI (Top1 saja) - FULL
+# NARASI
 # ========================
 NARASI = {
     "O": {
@@ -402,20 +391,13 @@ if st.button("🔍 Lihat Hasil"):
         st.error("Masih ada pertanyaan yang belum dijawab.")
         st.stop()
 
-    # mapping jawaban -> trait
     trait_list = [KEYS[i][jawaban[i]] for i in range(20)]
-
-    # hitung kecenderungan
     traits = ["O", "C", "E", "A", "N"]
     counts = {t: trait_list.count(t) for t in traits}
 
-    # Top1 saja
     top1 = max(counts, key=counts.get)
-
-    # hasil prediksi disimpan juga
     hasil_prediksi = NARASI[top1]["nama"]
 
-    # buat narasi
     n = NARASI[top1]
     narasi = f"""
 ## 📌 Kecenderungan Kepribadian
@@ -442,7 +424,6 @@ Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan
     st.success("✅ Hasil berhasil dibuat!")
     st.markdown(narasi)
 
-    # ===== AUTO SAVE KE EXCEL (APPEND) =====
     timestamp = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
@@ -459,13 +440,14 @@ Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan
         narasi,
     ] + jawaban
 
-    # anti double-save karena rerun
+    # anti double-save: pakai timestamp juga biar payload unik
     payload = (timestamp, nama, int(umur), top1, tuple(jawaban))
     if st.session_state.get("last_saved") != payload:
         try:
             save_to_excel_append(row)
             st.session_state["last_saved"] = payload
             st.info("📊 Jawaban kamu tersimpan otomatis.")
+            st.caption(f"Lokasi file: {EXCEL_FILENAME}")
         except Exception as e:
             st.error("❌ Gagal menyimpan jawaban.")
             st.exception(e)
