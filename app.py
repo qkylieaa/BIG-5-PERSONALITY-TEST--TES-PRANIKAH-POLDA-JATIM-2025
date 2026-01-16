@@ -10,10 +10,12 @@ st.set_page_config(page_title="SiPreMarry.id", layout="centered")
 # - Windows (run di laptop): simpan ke path kamu
 # - Linux/Cloud: simpan di folder project biar tidak error
 # ========================
-if os.name == "nt":  # Windows lokal (laptop kamu)
-    EXCEL_FILENAME = r"C:\Users\APRILIA R.P\Downloads\Draft Sipremarry\data user SiPreMarry.xlsx"
-else:  # Linux / Streamlit Cloud
-    EXCEL_FILENAME = os.path.join(os.getcwd(), "data user SiPreMarry.xlsx")
+if os.name == "nt":
+    BASE_DIR = r"C:\Users\APRILIA R.P\Downloads\Draft Sipremarry"
+else:
+    BASE_DIR = os.getcwd()
+
+EXCEL_FILENAME = os.path.join(BASE_DIR, "data user SiPreMarry.xlsx")
 
 COLUMNS = [
     "Timestamp", "Nama", "Umur",
@@ -26,27 +28,40 @@ def bullet(lines):
     return "\n".join([f"- {x}" for x in lines])
 
 def save_to_excel_append(row, filename=EXCEL_FILENAME):
-    """Append 1 row ke 1 file Excel yang sama. Jika belum ada, buat baru + header."""
     os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
-
     df_new = pd.DataFrame([row], columns=COLUMNS)
 
-    # Buat file pertama kali
+    sheet_name = "data"
+
+    # Kalau file belum ada -> bikin baru + header
     if not os.path.exists(filename):
-        df_new.to_excel(filename, index=False, engine="openpyxl", sheet_name="data")
+        with pd.ExcelWriter(filename, engine="openpyxl") as writer:
+            df_new.to_excel(writer, sheet_name=sheet_name, index=False)
         return
 
-    # Append ke file yang sudah ada
+    # Kalau file sudah ada -> append
+    from openpyxl import load_workbook
+    wb = load_workbook(filename)
+
+    # Pastikan sheet "data" ada
+    if sheet_name not in wb.sheetnames:
+        wb.create_sheet(sheet_name)
+        ws = wb[sheet_name]
+        ws.append(COLUMNS)  # tulis header
+        wb.save(filename)
+
+    ws = wb[sheet_name]
+    startrow = ws.max_row  # baris terakhir terisi
+
+    # Append pakai pandas tapi startrow sesuai max_row sheet "data"
     with pd.ExcelWriter(filename, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
-        sheet_name = "data"
-
-        # kalau sheet belum ada, tulis baru
-        if sheet_name not in writer.sheets:
-            df_new.to_excel(writer, sheet_name=sheet_name, index=False)
-            return
-
-        startrow = writer.sheets[sheet_name].max_row
-        df_new.to_excel(writer, sheet_name=sheet_name, index=False, header=False, startrow=startrow)
+        df_new.to_excel(
+            writer,
+            sheet_name=sheet_name,
+            index=False,
+            header=False,
+            startrow=startrow
+        )
 
 # ========================
 # Title & Header
