@@ -10,9 +10,9 @@ st.set_page_config(page_title="SiPreMarry.id", layout="centered")
 # - Windows (run di laptop): simpan ke path kamu
 # - Linux/Cloud: simpan di folder project biar tidak error
 # ========================
-if os.name == "nt":
+if os.name == "nt":  # Windows lokal (laptop kamu)
     EXCEL_FILENAME = r"C:\Users\APRILIA R.P\Downloads\Draft Sipremarry\data user SiPreMarry.xlsx"
-else:
+else:  # Linux / Streamlit Cloud
     EXCEL_FILENAME = os.path.join(os.getcwd(), "data user SiPreMarry.xlsx")
 
 COLUMNS = [
@@ -27,21 +27,26 @@ def bullet(lines):
 
 def save_to_excel_append(row, filename=EXCEL_FILENAME):
     """Append 1 row ke 1 file Excel yang sama. Jika belum ada, buat baru + header."""
-    # FIX utama: kalau dirname kosong -> pakai "."
     os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
 
     df_new = pd.DataFrame([row], columns=COLUMNS)
 
-    # jika file belum ada: buat baru (header otomatis)
+    # Buat file pertama kali
     if not os.path.exists(filename):
-        df_new.to_excel(filename, index=False)
+        df_new.to_excel(filename, index=False, engine="openpyxl", sheet_name="data")
         return
 
-    # jika file sudah ada: append baris (tanpa header)
+    # Append ke file yang sudah ada
     with pd.ExcelWriter(filename, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
-        sheet = list(writer.sheets.keys())[0]  # sheet pertama
-        startrow = writer.sheets[sheet].max_row
-        df_new.to_excel(writer, sheet_name=sheet, index=False, header=False, startrow=startrow)
+        sheet_name = "data"
+
+        # kalau sheet belum ada, tulis baru
+        if sheet_name not in writer.sheets:
+            df_new.to_excel(writer, sheet_name=sheet_name, index=False)
+            return
+
+        startrow = writer.sheets[sheet_name].max_row
+        df_new.to_excel(writer, sheet_name=sheet_name, index=False, header=False, startrow=startrow)
 
 # ========================
 # Title & Header
