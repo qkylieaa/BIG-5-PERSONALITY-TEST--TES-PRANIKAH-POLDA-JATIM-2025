@@ -1,73 +1,22 @@
 import streamlit as st
-import pandas as pd
-import os
 import datetime as dt
 
 st.set_page_config(page_title="SiPreMarry.id", layout="centered")
 
 # ========================
-# PATH FILE EXCEL (AUTO SESUAI OS)
-# - Windows (run di laptop): simpan ke path kamu
-# - Linux/Cloud: simpan di folder project biar tidak error
+# Helpers
 # ========================
-if os.name == "nt":
-    BASE_DIR = r"C:\Users\APRILIA R.P\Downloads\Draft Sipremarry"
-else:
-    BASE_DIR = os.getcwd()
-
-EXCEL_FILENAME = os.path.join(BASE_DIR, "data user SiPreMarry.xlsx")
-
-COLUMNS = [
-    "Timestamp", "Nama", "Umur",
-    "Top1", "Hasil Prediksi",   # <-- PAKAI SPASI
-    "O_count", "C_count", "E_count", "A_count", "N_count",
-    "Narasi",
-] + [f"Q{i}" for i in range(1, 21)]
-
 def bullet(lines):
     return "\n".join([f"- {x}" for x in lines])
-
-def save_to_excel_append(row, filename=EXCEL_FILENAME):
-    os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
-    df_new = pd.DataFrame([row], columns=COLUMNS)
-
-    sheet_name = "data"
-
-    # Kalau file belum ada -> bikin baru + header
-    if not os.path.exists(filename):
-        with pd.ExcelWriter(filename, engine="openpyxl") as writer:
-            df_new.to_excel(writer, sheet_name=sheet_name, index=False)
-        return
-
-    # Kalau file sudah ada -> append
-    from openpyxl import load_workbook
-    wb = load_workbook(filename)
-
-    # Pastikan sheet "data" ada
-    if sheet_name not in wb.sheetnames:
-        wb.create_sheet(sheet_name)
-        ws = wb[sheet_name]
-        ws.append(COLUMNS)  # tulis header
-        wb.save(filename)
-
-    ws = wb[sheet_name]
-    startrow = ws.max_row  # baris terakhir terisi
-
-    # Append pakai pandas tapi startrow sesuai max_row sheet "data"
-    with pd.ExcelWriter(filename, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
-        df_new.to_excel(
-            writer,
-            sheet_name=sheet_name,
-            index=False,
-            header=False,
-            startrow=startrow
-        )
 
 # ========================
 # Title & Header
 # ========================
 st.title("💍 SiPreMarry.id Test")
-st.write("Pengenalan diri adalah langkah awal membangun pernikahan yang sehat. Jawab pertanyaan berikut untuk memahami kecenderungan kepribadian Anda.")
+st.write(
+    "Pengenalan diri adalah langkah awal membangun pernikahan yang sehat. "
+    "Jawab pertanyaan berikut untuk memahami kecenderungan kepribadian Anda."
+)
 st.write("---")
 
 # ========================
@@ -104,9 +53,6 @@ pertanyaan = [
     "Saat membuat komitmen besar, saya biasanya…",
 ]
 
-# ========================
-# Opsi (Q1–Q20) - TEKS LENGKAP
-# ========================
 opsi = [
     [
         "Merasa hidup saya baik-baik saja tanpa perlu membandingkan diri",
@@ -250,9 +196,6 @@ opsi = [
     ],
 ]
 
-# ========================
-# KEYS
-# ========================
 KEYS = [
     {opsi[0][0]:"A", opsi[0][1]:"O", opsi[0][2]:"N", opsi[0][3]:"C", opsi[0][4]:"O"},
     {opsi[1][0]:"N", opsi[1][1]:"C", opsi[1][2]:"O", opsi[1][3]:"A", opsi[1][4]:"N"},
@@ -278,6 +221,7 @@ KEYS = [
 
 # ========================
 # NARASI
+# (pakai persis punyamu)
 # ========================
 NARASI = {
     "O": {
@@ -388,22 +332,28 @@ NARASI = {
 }
 
 # ========================
-# TAMPILAN SOAL (LOOP)
+# TAMPILAN SOAL
 # ========================
 jawaban = []
 for idx, q in enumerate(pertanyaan):
     st.write(f"### {idx+1}. {q}")
-    pilihan = st.radio("", opsi[idx], index=None, key=f"q{idx}")
+    pilihan = st.radio(
+        "",
+        opsi[idx],
+        index=None,
+        key=f"q{idx}",
+        label_visibility="collapsed"
+    )
     jawaban.append(pilihan)
     st.write("")
 
 st.write("---")
 
 # ========================
-# TOMBOL PROSES (AUTO SAVE, TANPA DOWNLOAD)
+# PROSES HASIL (tanpa save / tanpa download)
 # ========================
 if st.button("🔍 Lihat Hasil"):
-    if not nama:
+    if not nama.strip():
         st.error("Nama wajib diisi.")
         st.stop()
 
@@ -411,14 +361,15 @@ if st.button("🔍 Lihat Hasil"):
         st.error("Masih ada pertanyaan yang belum dijawab.")
         st.stop()
 
+    # skor trait
     trait_list = [KEYS[i][jawaban[i]] for i in range(20)]
     traits = ["O", "C", "E", "A", "N"]
     counts = {t: trait_list.count(t) for t in traits}
 
+    # top trait
     top1 = max(counts, key=counts.get)
-    hasil_prediksi = NARASI[top1]["nama"]
-
     n = NARASI[top1]
+
     narasi = f"""
 ## 📌 Kecenderungan Kepribadian
 Berdasarkan pilihan Anda, kecenderungan kepribadian Anda adalah **{n['nama']}**.
@@ -441,33 +392,19 @@ Berdasarkan pilihan Anda, kecenderungan kepribadian Anda adalah **{n['nama']}**.
 Catatan: Hasil ini merupakan gambaran kecenderungan berdasarkan jawaban Anda dan bukan diagnosis klinis.
 """.strip()
 
+    st.session_state["hasil"] = {
+        "timestamp": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "nama": nama,
+        "umur": int(umur),
+        "top1": top1,
+        "counts": counts,
+        "narasi": narasi
+    }
+
+# tampilkan hasil kalau sudah ada
+if "hasil" in st.session_state:
+    h = st.session_state["hasil"]
     st.success("✅ Hasil berhasil dibuat!")
-    st.markdown(narasi)
-
-    timestamp = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    row = [
-        timestamp,
-        nama,
-        int(umur),
-        top1,
-        hasil_prediksi,
-        counts["O"],
-        counts["C"],
-        counts["E"],
-        counts["A"],
-        counts["N"],
-        narasi,
-    ] + jawaban
-
-    # anti double-save: pakai timestamp juga biar payload unik
-    payload = (timestamp, nama, int(umur), top1, tuple(jawaban))
-    if st.session_state.get("last_saved") != payload:
-        try:
-            save_to_excel_append(row)
-            st.session_state["last_saved"] = payload
-            st.info("📊 Jawaban kamu tersimpan otomatis.")
-            st.caption(f"Lokasi file: {EXCEL_FILENAME}")
-        except Exception as e:
-            st.error("❌ Gagal menyimpan jawaban.")
-            st.exception(e)
+    st.markdown(h["narasi"])
+    st.caption(f"Waktu: {h['timestamp']} • Nama: {h['nama']} • Umur: {h['umur']}")
+    st.write("Skor (jumlah pilihan):", h["counts"])
