@@ -407,4 +407,3 @@ if "hasil" in st.session_state:
     st.success("✅ Hasil berhasil dibuat!")
     st.markdown(h["narasi"])
     st.caption(f"Waktu: {h['timestamp']} • Nama: {h['nama']} • Umur: {h['umur']}")
-    st.write("Skor (jumlah pilihan):", h["counts"])
