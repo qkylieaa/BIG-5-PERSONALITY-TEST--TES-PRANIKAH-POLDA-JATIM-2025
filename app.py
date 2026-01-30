@@ -15,7 +15,7 @@ def bullet(lines):
 st.title("💍 SiPreMarry.id Test")
 st.write(
     "Pengenalan diri adalah langkah awal membangun pernikahan yang sehat. "
-    "Jawab pertanyaan berikut untuk memahami kecenderungan kepribadian Anda."
+    "Silahkan jawab pertanyaan berikut untuk memahami kecenderungan kepribadian Anda."
 )
 st.write("---")
 
